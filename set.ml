@@ -32,6 +32,7 @@ end = struct
         | (i, None)   -> "SV: {" ^ Int.to_string i ^ "}"
 end
 
+(* TODO something is wrong with this whole design, so much for writing good code *)
 module SetAttribute : sig
     type t
 
@@ -59,6 +60,7 @@ end
 
 module SetCard : sig
     type t
+    val empty : unit -> t
 
     val of_tuple_list : (SetAttribute.t * SetValue.t) list -> t
 
@@ -68,14 +70,14 @@ module SetCard : sig
 end = struct
     type t = (SetAttribute.t, SetValue.t) List.Assoc.t
 
-    let create_empty () = []
+    let empty () = []
 
     let of_tuple_list pairs =
         let rec aux head acc =
             match head with
             | (attr, v)::xs -> aux xs (List.Assoc.add acc attr v)
             | [] -> acc
-        in aux pairs (create_empty ())
+        in aux pairs (empty ())
 
     let attr_value_exn t attr = List.Assoc.find_exn t attr
 
@@ -94,11 +96,7 @@ module SetGame : sig
 
     val create : SetAttribute.t list -> t
 
-    val make_deck : SetAttribute.t list -> SetCard.t list
-
     val validate_set : t -> SetCard.t list -> bool
-    (* val all_equal : 'a list -> bool *)
-
 end = struct
     type t = {
         board: SetCard.t array;
@@ -124,21 +122,28 @@ end = struct
         let all_different = List.contains_dup set_values in
         all_same || all_different
 
+    (* TODO find a way to make at least tail recursive *)
+    let make_deck attrs =
+        let rec make_deck_helper history remain = match remain with
+        | []           -> [history]
+        | attr::remain -> List.fold
+            ~init:[]
+            ~f:(fun acc v ->
+                let new_choice = (attr, v) in
+                let child_list = make_deck_helper (new_choice::history) remain in
+                acc @ child_list)
+            (SetAttribute.list_of_values attr)
 
-    let rec make_deck_helper history remain = match remain with
-    | []           -> [history]
-    | attr::remain -> List.fold
-        ~init:[]
-        ~f:(fun acc v ->
-            let new_choice = (attr, v) in
-            let child_list = make_deck_helper (new_choice::history) remain in
-            acc @ child_list)
-        (SetAttribute.list_of_values attr)
+        in List.map ~f:SetCard.of_tuple_list (make_deck_helper [] attrs)
 
-    let make_deck attrs = List.map ~f:SetCard.of_tuple_list (make_deck_helper [] attrs)
-
-    let draw_cards deck = ([], deck)
-    let next_board old_board new_cards = [| |]
+    (* grabs 12 cards and puts them on the boards *)
+    let init_board_from deck =
+        let board = Array.create ~len:12 (SetCard.empty ()) in
+        let rec aux count deck =
+            match count with
+            | 12 -> (board, deck)
+            | _  -> (board.(count) <- (List.hd_exn deck); aux (count + 1) (List.tl_exn deck))
+        in aux 0 deck
 
     (* public stuff *)
 
@@ -149,8 +154,8 @@ end = struct
         if all_equal lens
         then
             let deck = make_deck attributes in
-            (* let (deck, board) = draw_cards deck in *)
-            {board = [||] ; deck ; attributes ; m = List.hd_exn lens}
+            let (board, deck) = init_board_from deck in
+            {board ; deck ; attributes ; m = List.hd_exn lens}
         else
             failwith "All attributes must have same number of values"
 
