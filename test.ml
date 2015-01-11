@@ -23,4 +23,4 @@ let purple = SetValue.create 3 "purple";;
 
 let color = SetAttribute.create 4 "color" [red; green; purple];;
 
-let test = SetGame.make_deck [number; symbol];;
+let test = SetGame.make_deck [number; symbol; shading; color];;
