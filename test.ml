@@ -1,3 +1,5 @@
+open Core.Std
+
 (* define the real set game *)
 let one = SetValue.create_unnamed 1;;
 let two = SetValue.create_unnamed 2;;
@@ -24,3 +26,28 @@ let purple = SetValue.create 3 "purple";;
 let color = SetAttribute.create 4 "color" [red; green; purple];;
 
 let test = SetGame.create [number; symbol; shading; color];;
+
+let find_set game =
+    let rec aux i j k =
+        let board = SetGame.board game in
+        let out_of_bounds = (i+1)*(j+1)*(k+1) >= Array.length board in
+        if out_of_bounds
+        then None
+        else
+            let test_set = [board.(i);board.(j);board.(k)] in
+            let any_same = i = j || j = k || i = k in
+            if (not any_same) && SetGame.validate_set game test_set
+            then Some test_set
+            else
+                let left = aux (i+1) j k in
+                let center = aux i (j+1) k in
+                let right = aux i j (k+1) in
+                if Option.is_none left then
+                    if Option.is_none center then
+                        if Option.is_none right then None else right
+                    else center
+                else left
+    in aux 0 0 0
+
+let () =
+    List.iter ~f:(fun e -> Printf.printf "%s\n" (SetCard.to_string e)) (Option.value_exn (find_set test))
