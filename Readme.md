@@ -4,9 +4,9 @@ Each game has n attributes (Color, Number, Shading, etc) and m possible values f
 
 A valid set consists of cards for which the following is true:
 * For every attribute a, either:
-     c1[a] = c2[a] = ... = cm[a] (all are equal)
-                     OR
-     c1[a] != c2[a] != ... != cm[a] (all are different)
+    c1[a] = c2[a] = ... = cm[a] { all are equal }
+                    OR
+    c1[a] != c2[a] != ... != cm[a] { all are different }
 
 * The number of cards in the set must be m
 
