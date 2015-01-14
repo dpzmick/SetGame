@@ -16,7 +16,7 @@ let attr_value_exn t attr = List.Assoc.find_exn t attr
 let to_string t =
     let inner = List.fold
         ~init:""
-        ~f:(fun acc (a,v) -> match acc with
+        ~f:(fun acc (_,v) -> match acc with
             | "" -> SetValue.to_string v
             | _  -> acc ^ " " ^ SetValue.to_string v)
         t

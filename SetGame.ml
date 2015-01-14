@@ -21,7 +21,7 @@ let all_equal lst =
 let check_attr set attr =
     let set_values = List.map ~f:(fun e -> SetCard.attr_value_exn e attr) set in
     let all_same = all_equal set_values in
-    let all_different = List.contains_dup set_values in
+    let all_different = not (List.contains_dup set_values) in
     all_same || all_different
 
 (* TODO find a way to make at least tail recursive *)
