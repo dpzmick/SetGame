@@ -70,28 +70,29 @@ let () =
 
 let () =
     (* define the real set game TODO there must be a better way*)
-    let one = SetValue.create_unnamed 1 in
-    let two = SetValue.create_unnamed 2 in
-    let three = SetValue.create_unnamed 3 in
+    let one = SetValue.create "1" in
+    let two = SetValue.create "2" in
+    let three = SetValue.create "3" in
 
-    let number = SetAttribute.create 1 "number" [one; two; three] in
+    let number = SetAttribute.create "number" [one; two; three] in
 
-    let diamond  = SetValue.create 1 "diamond" in
-    let oval     = SetValue.create 2 "oval" in
-    let squiggle = SetValue.create 3 "squiggle" in
+    let diamond  = SetValue.create "diamond" in
+    let oval     = SetValue.create "oval" in
+    let squiggle = SetValue.create "squiggle" in
 
-    let symbol = SetAttribute.create 2 "symbol" [diamond;oval;squiggle] in
+    let symbol = SetAttribute.create "symbol" [diamond;oval;squiggle] in
 
-    let solid  = SetValue.create 1 "solid" in
-    let shaded = SetValue.create 2 "shaded" in
-    let opn    = SetValue.create 3 "open" in
+    let solid  = SetValue.create "solid" in
+    let shaded = SetValue.create "shaded" in
+    let opn    = SetValue.create "open" in
 
-    let shading = SetAttribute.create 3 "shading" [solid;shaded;opn] in
-    let red    = SetValue.create 1 "red" in
-    let green  = SetValue.create 2 "green" in
-    let purple = SetValue.create 3 "purple" in
+    let shading = SetAttribute.create "shading" [solid;shaded;opn] in
 
-    let color = SetAttribute.create 4 "color" [red; green; purple] in
+    let red    = SetValue.create "red" in
+    let green  = SetValue.create "green" in
+    let purple = SetValue.create "purple" in
+
+    let color = SetAttribute.create "color" [red; green; purple] in
 
     let test = SetGame.create [number; symbol; shading; color] in
 

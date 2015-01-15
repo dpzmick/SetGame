@@ -1,10 +1,7 @@
 open Core.Std
 
-type t = int * string option
+type t = string
 
-let create i s = (i, Some s)
-let create_unnamed i = (i, None)
+let create s = s
 
-let to_string = function
-    | (i, Some s) -> "SV: {" ^ (String.concat ~sep:" " [Int.to_string i; s]) ^ "}"
-    | (i, None)   -> "SV: {" ^ Int.to_string i ^ "}"
+let to_string s = s
