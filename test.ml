@@ -6,6 +6,7 @@ open Core.Std
 #load "SetGame.cmo"
 *)
 
+
 let print_board b =
     Array.iter ~f:(fun c -> Printf.printf "%s\n" (SetCard.to_string c)) b
 
@@ -58,7 +59,27 @@ let rec play_game game =
             let () = print_set set in
             play_game (SetGame.remove_set game set)
 
+let make_big_attr name num_val =
+    let rec aux acc i =
+        let istr = Int.to_string i in
+        if i = num_val
+        then acc
+        else aux ((SetValue.create istr)::acc) (i+1)
+    in SetAttribute.create name (aux [] 0)
 
+let make_big_game num_attr num_val =
+    let rec aux acc i =
+        let istr = Int.to_string i in
+        if i = num_attr
+        then acc
+        else aux ((make_big_attr istr num_val)::acc) (i+1)
+    in SetGame.create (aux [] 0)
+
+let () =
+    let big_game = make_big_game 5 4 in
+    Printf.printf "%d\n" (play_game big_game)
+
+(*
 let () =
     (* define the real set game TODO there must be a better way*)
     let one = SetValue.create "1" in
@@ -89,3 +110,4 @@ let () =
 
     (* play the game *)
     Printf.printf "%d\n" (play_game game)
+*)
