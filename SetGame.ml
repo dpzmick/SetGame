@@ -39,16 +39,17 @@ let make_deck attrs =
 
     in
     let unshuffled = List.map ~f:SetCard.of_tuple_list (make_deck_helper [] attrs) in
-    List.permute unshuffled
+    (* List.permute unshuffled *)
+    unshuffled
 
 
 (* grabs 12 cards and puts them on the boards *)
-let init_board_from deck =
-    let board = Array.create ~len:12 (SetCard.empty ()) in
+let init_board_from deck size =
+    let board = Array.create ~len:size (SetCard.empty ()) in
     let rec aux count deck =
-        match count with
-        | 12 -> (board, deck)
-        | _  -> (board.(count) <- (List.hd_exn deck); aux (count + 1) (List.tl_exn deck))
+        if count = size
+        then (board, deck)
+        else (board.(count) <- (List.hd_exn deck); aux (count + 1) (List.tl_exn deck))
     in aux 0 deck
 
 (* public stuff *)
@@ -80,7 +81,7 @@ let create attributes =
     if all_equal lens
     then
         let deck = make_deck attributes in
-        let (board, deck) = init_board_from deck in
+        let (board, deck) = init_board_from deck ((List.length attributes) * (List.hd_exn lens)) in
         {board ; deck ; attributes ; m = List.hd_exn lens; score = 0}
     else
         failwith "All attributes must have same number of values"
@@ -105,3 +106,4 @@ let remove_set {board; deck; attributes; m; score} set =
 let board {board;_} = board
 let cards_remain {deck;_} = List.length deck
 let score {score;_} = score
+let cards_needed {m;_} = m

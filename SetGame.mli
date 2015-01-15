@@ -20,3 +20,4 @@ val validate_set : t -> SetCard.t list -> bool
 val board : t -> SetCard.t array
 val cards_remain : t -> int
 val score : t -> int
+val cards_needed: t -> int

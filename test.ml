@@ -36,20 +36,35 @@ let find_set game =
         let () = print_set set in
         *)
         if SetGame.validate_set game set then Some set else None
-    in combs 3 (Array.length board) base
+    in combs (SetGame.cards_needed game) (Array.length board) base
 
 let rec play_game game =
     match find_set game with
-    | None     -> SetGame.score game
-    | Some set ->
-            let () = print_set set in
+    | None ->
             let () = Printf.printf "\nBoard (len: %d)\n" (Array.length (SetGame.board game)) in
             let () = print_board (SetGame.board game) in
-            let () = Printf.printf "\n%d cards remain\n" (SetGame.cards_remain game) in
+            let () = Printf.printf "No sets found\n" in
+            SetGame.score game
+
+    | Some set ->
+            let () = Printf.printf "\nBoard (len: %d)\n" (Array.length (SetGame.board game)) in
+            let () = print_board (SetGame.board game) in
+            let () = Printf.printf "\n%d cards remain\n\nFound set:\n" (SetGame.cards_remain game) in
+            let () = print_set set in
             play_game (SetGame.remove_set game set)
 
+
 let () =
-    (* define the real set game *)
+    let number = SetAttribute.create 1 "number" [SetValue.create_unnamed 1; SetValue.create_unnamed 2] in
+    let shape = SetAttribute.create 2 "shape" [SetValue.create_unnamed 1; SetValue.create_unnamed 2] in
+    let shading = SetAttribute.create 3 "shading" [SetValue.create_unnamed 1; SetValue.create_unnamed 2] in
+    let game = SetGame.create [number;shape;shading] in
+    Printf.printf "Final Score: %d\n" (play_game game)
+
+
+(*
+let () =
+    (* define the real set game TODO there must be a better way*)
     let one = SetValue.create_unnamed 1 in
     let two = SetValue.create_unnamed 2 in
     let three = SetValue.create_unnamed 3 in
@@ -77,3 +92,4 @@ let () =
 
     (* play the game *)
     Printf.printf "%d\n" (play_game test)
+*)
