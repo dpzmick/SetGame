@@ -12,15 +12,11 @@ open Core.Std
  *
  * * The number of cards in the set must be m
  *)
-type t = {
-    board: SetCard.t array;
-    deck: SetCard.t list;
-    attributes: SetAttribute.t list;
-    m : int (* the number of values per attribute *)
-}
+type t
 
 val create : SetAttribute.t list -> t
-
-val board : t -> SetCard.t array
-
+val remove_set : t -> SetCard.t list -> t
 val validate_set : t -> SetCard.t list -> bool
+val board : t -> SetCard.t array
+val cards_remain : t -> int
+val score : t -> int

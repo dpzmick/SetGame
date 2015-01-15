@@ -4,7 +4,8 @@ type t = {
     board: SetCard.t array;
     deck: SetCard.t list;
     attributes: SetAttribute.t list;
-    m : int (* the number of values per attribute *)
+    m : int; (* the number of values per attribute *)
+    score : int;
 }
 
 (* private helpers *)
@@ -36,7 +37,10 @@ let make_deck attrs =
             acc @ child_list)
         (SetAttribute.list_of_values attr)
 
-    in List.map ~f:SetCard.of_tuple_list (make_deck_helper [] attrs)
+    in
+    let unshuffled = List.map ~f:SetCard.of_tuple_list (make_deck_helper [] attrs) in
+    List.permute unshuffled
+
 
 (* grabs 12 cards and puts them on the boards *)
 let init_board_from deck =
@@ -49,6 +53,26 @@ let init_board_from deck =
 
 (* public stuff *)
 
+let draw_cards how_many deck =
+    let rec aux acc deck i = match deck with
+    | [] -> (acc, [])
+    | top::rest -> if i = how_many then (acc, deck) else aux (top::acc) rest (i+1)
+    in aux [] deck 0
+
+let remove_board_entries board entries =
+    let not_in_entries c = Option.is_none (List.find ~f:(fun e -> e = c) entries) in
+    Array.filter ~f:not_in_entries board
+
+let replace_board_entries board replace_list =
+    let replacement_for board_element =
+        List.find ~f:(fun (be, _) -> be = board_element) replace_list
+    in
+    let replace_element e =
+        match replacement_for e with
+        | Some ne -> snd ne
+        | None    -> e
+    in Array.replace_all board ~f:replace_element
+
 (* check if all attributes have same number of values *)
 (* TODO check if all attributes given different ids, or design a sane interface ;p *)
 let create attributes =
@@ -57,12 +81,27 @@ let create attributes =
     then
         let deck = make_deck attributes in
         let (board, deck) = init_board_from deck in
-        {board ; deck ; attributes ; m = List.hd_exn lens}
+        {board ; deck ; attributes ; m = List.hd_exn lens; score = 0}
     else
         failwith "All attributes must have same number of values"
-
-let board {board;_} = board
 
 let validate_set t set =
     let validate_each_attr = List.map ~f:(check_attr set) t.attributes in
     (List.length set = t.m) && (List.fold ~init:true ~f:(fun acc e -> acc && e) validate_each_attr)
+
+(* makes a new game, hence the array copy *)
+let remove_set {board; deck; attributes; m; score} set =
+    (* TODO validate set???? *)
+    let (new_cards, deck) = draw_cards (List.length set) deck in
+    match List.length new_cards with
+    | 0 ->
+            let board = remove_board_entries board set in
+            {board; deck; attributes; m; score = score + 1}
+    | _ ->
+            let board = Array.copy board in
+            let () = replace_board_entries board (List.zip_exn set new_cards) in
+            {board; deck; attributes; m; score = score + 1}
+
+let board {board;_} = board
+let cards_remain {deck;_} = List.length deck
+let score {score;_} = score
