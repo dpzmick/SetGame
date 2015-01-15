@@ -85,7 +85,7 @@ let () =
 
     let color = SetAttribute.create "color" [red; green; purple] in
 
-    let test = SetGame.create [number; symbol; shading; color] in
+    let game = SetGame.create [number; symbol; shading; color] in
 
     (* play the game *)
-    Printf.printf "%d\n" (play_game test)
+    Printf.printf "%d\n" (play_game game)
