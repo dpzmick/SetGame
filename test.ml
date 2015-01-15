@@ -44,7 +44,12 @@ let rec play_game game =
             let () = Printf.printf "\nBoard (len: %d)\n" (Array.length (SetGame.board game)) in
             let () = print_board (SetGame.board game) in
             let () = Printf.printf "No sets found\n" in
-            SetGame.score game
+            if SetGame.cards_remain game > 0
+            then
+                let () = Printf.printf "drawing more cards\n" in
+                play_game (SetGame.deal_more game)
+            else
+                SetGame.score game
 
     | Some set ->
             let () = Printf.printf "\nBoard (len: %d)\n" (Array.length (SetGame.board game)) in

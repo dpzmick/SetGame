@@ -15,8 +15,14 @@ open Core.Std
 type t
 
 val create : SetAttribute.t list -> t
-val remove_set : t -> SetCard.t list -> t
+
+(* game play *)
 val validate_set : t -> SetCard.t list -> bool
+val remove_set : t -> SetCard.t list -> t
+val deal_more: t -> t (* decreases score by number of cards drawn *)
+val deal_more_custom: t -> int -> t
+
+(* some accessor sort of funtions *)
 val board : t -> SetCard.t array
 val cards_remain : t -> int
 val score : t -> int

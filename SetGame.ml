@@ -6,6 +6,7 @@ type t = {
     attributes: SetAttribute.t list;
     m : int; (* the number of values per attribute *)
     score : int;
+    board_len : int;
 }
 
 (* private helpers *)
@@ -42,7 +43,7 @@ let make_deck attrs =
     List.permute unshuffled ~random_state:(Random.State.make_self_init ())
     (* unshuffled *)
 
-(* grabs size cards and puts them on the boards *)
+(* grabs cards and puts them on the boards *)
 let init_board_from deck size =
     let board = Array.create ~len:size (SetCard.empty ()) in
     let rec aux count deck =
@@ -52,7 +53,6 @@ let init_board_from deck size =
     in aux 0 deck
 
 (* public stuff *)
-
 let draw_cards how_many deck =
     let rec aux acc deck i = match deck with
     | [] -> (acc, [])
@@ -73,6 +73,18 @@ let replace_board_entries board replace_list =
         | None    -> e
     in Array.replace_all board ~f:replace_element
 
+(* TODO functional record updating??? *)
+let deal_more {board; deck; attributes; m; score; board_len} =
+    let num_to_draw = m in
+    let (new_cards, deck) = draw_cards m deck in
+    let board = Array.append board (List.to_array new_cards) in
+    {board; deck; attributes; m; score = score - num_to_draw; board_len}
+
+let deal_more_custom {board; deck; attributes; m; score; board_len} num_to_draw =
+    let (new_cards, deck) = draw_cards m deck in
+    let board = Array.append board (List.to_array new_cards) in
+    {board; deck; attributes; m; score = score - num_to_draw; board_len}
+
 (* check if all attributes have same number of values *)
 (* TODO check if all attributes given different ids, or design a sane interface ;p *)
 let create attributes =
@@ -80,8 +92,9 @@ let create attributes =
     if all_equal lens
     then
         let deck = make_deck attributes in
-        let (board, deck) = init_board_from deck ((List.length attributes) * (List.hd_exn lens)) in
-        {board ; deck ; attributes ; m = List.hd_exn lens; score = 0}
+        let board_len = (List.length attributes) * (List.hd_exn lens) in
+        let (board, deck) = init_board_from deck board_len in
+        {board ; deck ; attributes ; m = List.hd_exn lens; score = 0; board_len}
     else
         failwith "All attributes must have same number of values"
 
@@ -90,17 +103,16 @@ let validate_set t set =
     (List.length set = t.m) && (List.fold ~init:true ~f:(fun acc e -> acc && e) validate_each_attr)
 
 (* makes a new game, hence the array copy *)
-let remove_set {board; deck; attributes; m; score} set =
-    (* TODO validate set???? *)
+let remove_set {board; deck; attributes; m; score; board_len} set =
     let (new_cards, deck) = draw_cards (List.length set) deck in
-    match List.length new_cards with
-    | 0 ->
+    if List.length new_cards = 0 || Array.length board > board_len
+    then
             let board = remove_board_entries board set in
-            {board; deck; attributes; m; score = score + 1}
-    | _ ->
+            {board; deck; attributes; m; score = score + 1; board_len}
+    else
             let board = Array.copy board in
             let () = replace_board_entries board (List.zip_exn set new_cards) in
-            {board; deck; attributes; m; score = score + 1}
+            {board; deck; attributes; m; score = score + 1; board_len}
 
 let board {board;_} = board
 let cards_remain {deck;_} = List.length deck
