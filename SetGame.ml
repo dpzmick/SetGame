@@ -39,11 +39,10 @@ let make_deck attrs =
 
     in
     let unshuffled = List.map ~f:SetCard.of_tuple_list (make_deck_helper [] attrs) in
-    (* List.permute unshuffled *)
-    unshuffled
+    List.permute unshuffled ~random_state:(Random.State.make_self_init ())
+    (* unshuffled *)
 
-
-(* grabs 12 cards and puts them on the boards *)
+(* grabs size cards and puts them on the boards *)
 let init_board_from deck size =
     let board = Array.create ~len:size (SetCard.empty ()) in
     let rec aux count deck =

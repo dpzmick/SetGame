@@ -54,15 +54,15 @@ let rec play_game game =
             play_game (SetGame.remove_set game set)
 
 
+(*
 let () =
     let number = SetAttribute.create 1 "number" [SetValue.create_unnamed 1; SetValue.create_unnamed 2] in
     let shape = SetAttribute.create 2 "shape" [SetValue.create_unnamed 1; SetValue.create_unnamed 2] in
     let shading = SetAttribute.create 3 "shading" [SetValue.create_unnamed 1; SetValue.create_unnamed 2] in
     let game = SetGame.create [number;shape;shading] in
     Printf.printf "Final Score: %d\n" (play_game game)
+*)
 
-
-(*
 let () =
     (* define the real set game TODO there must be a better way*)
     let one = SetValue.create_unnamed 1 in
@@ -92,4 +92,3 @@ let () =
 
     (* play the game *)
     Printf.printf "%d\n" (play_game test)
-*)
