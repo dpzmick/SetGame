@@ -86,7 +86,6 @@ let deal_more_custom {board; deck; attributes; m; score; board_len} num_to_draw 
     {board; deck; attributes; m; score = score - num_to_draw; board_len}
 
 (* check if all attributes have same number of values *)
-(* TODO check if all attributes given different ids, or design a sane interface ;p *)
 let create attributes =
     let lens = List.map ~f:SetAttribute.number_of_values attributes in
     if all_equal lens
